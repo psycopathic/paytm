@@ -3,6 +3,7 @@ import cors from 'cors';
 import { connectDB } from './src/lib/db.js';
 import dotenv from 'dotenv';
 import userRouter from './src/routes/userRoutes.js'
+import accountRouter from './src/routes/accountRoutes.js'
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api/v1',userRouter)
+app.use('/api/v1/account',accountRouter)
 
 app.get('/',(req,rea)=>{
     rea.send("hello")

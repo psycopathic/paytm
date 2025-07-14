@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Account from "../models/accountModel.js";
 import { userValidationSchema } from "../validation/userValidation.js";
 import jwt from "jsonwebtoken";
 
@@ -16,6 +17,16 @@ export const signup = async (req, res) => {
 
     const newUser = new User(result.data);
     const savedUser = await newUser.save();
+
+    try {
+      await Account.create({
+        userId: savedUser._id,
+        balance: 1 + Math.random() * 100000,
+      });
+      console.log("Account created ✅");
+    } catch (err) {
+      console.error("Account creation failed ❌:", err);
+    }
 
     const token = jwt.sign({ userId: savedUser._id }, process.env.JWT_SECRET);
     return res.status(201).json({
@@ -84,25 +95,27 @@ export const updateUser = async (req, res) => {
   }
 };
 
-
-export const findingUser = async(req,res)=>{
-    const filter = req.query.filter||'';
-    const user = await User.find({
-        $or:[{
-            firstName:{
-                '$regex':filter,
-            }
-        },{
-            lastName:{
-                '$regex':filter
-            }
-        }]
-    })
-    res.json({
-        user:user.map((user)=>({
-            username:user.username,
-            firstName:user.firstName,
-            lastName:user.lastName
-        }))
-    })
-}
+export const findingUser = async (req, res) => {
+  const filter = req.query.filter || "";
+  const user = await User.find({
+    $or: [
+      {
+        firstName: {
+          $regex: filter,
+        },
+      },
+      {
+        lastName: {
+          $regex: filter,
+        },
+      },
+    ],
+  });
+  res.json({
+    user: user.map((user) => ({
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    })),
+  });
+};
